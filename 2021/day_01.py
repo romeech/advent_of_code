@@ -1,3 +1,35 @@
+def count_increases(m):
+    res = 0
+    for i, num in enumerate(m):
+        if i == 0:
+            continue
+
+        if num > m[i - 1]:
+            res += 1
+
+    return res
+
+
+def count_tripples(m):
+    res = 0
+    prev = None
+    buf = []
+
+    for num in m:
+        buf.append(num)
+        if len(buf) != 3:
+            continue
+
+        cur = sum(buf)
+        if prev is not None and cur > prev:
+            res += 1
+
+        prev = cur
+        buf = buf[1:]
+
+    return res
+
+
 measures = [
     157,
     158,
@@ -2000,35 +2032,3 @@ measures = [
     3794,
     3798
 ]
-
-
-def count_increases(m):
-    res = 0
-    for i, num in enumerate(m):
-        if i == 0:
-            continue
-
-        if num > m[i - 1]:
-            res += 1
-
-    return res
-
-
-def count_tripples(m):
-    res = 0
-    prev = None
-    buf = []
-
-    for num in m:
-        buf.append(num)
-        if len(buf) != 3:
-            continue
-
-        cur = sum(buf)
-        if prev is not None and cur > prev:
-            res += 1
-
-        prev = cur
-        buf = buf[1:]
-
-    return res
