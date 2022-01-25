@@ -14,7 +14,7 @@ def get_bits_stats(arr, idx):
 def calc_rate(arr, cmp_fn):
     row_len = len(arr[0])
     bits = [
-        '1' if cmp_fn(*get_bits_stats(arr, i)) else '0'
+        1 if cmp_fn(*get_bits_stats(arr, i)) else 0
         for i in range(row_len)
     ]
     return bits2int(bits)
@@ -44,30 +44,25 @@ def least_common_value(y_bits, n_bits):
         return 0
 
 
-def calc_oxygen_generator_rating(arr):
+def filter_bits_array(arr, bit_criteria):
     row_len = len(arr[0])
     check_arr = arr
     for i in range(row_len):
         if len(check_arr) == 1:
             return bits2int(check_arr[0])
 
-        mcv = most_common_value(*get_bits_stats(check_arr, i))
+        mcv = bit_criteria(*get_bits_stats(check_arr, i))
 
         check_arr = [bits for bits in check_arr if bits[i] == mcv]
 
     return bits2int(check_arr[0])
 
+def calc_oxygen_generator_rating(arr):
+    return filter_bits_array(arr, most_common_value)
+
 
 def calc_c02_scrubber_rating(arr):
-    row_len = len(arr[0])
-    check_indices = range(len(arr))
-    for i in range(row_len):
-        if len(check_indices) == 1:
-            return arr[check_indices[0]]
-
-        lcv = least_common_value(*get_bits_stats(arr, i))
-
-        check_indices = [j for j in check_indices if arr[j][i] == lcv]
+    return filter_bits_array(arr, least_common_value)
 
 
 control_value = [
