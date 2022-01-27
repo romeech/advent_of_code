@@ -57,6 +57,7 @@ def filter_bits_array(arr, bit_criteria):
 
     return bits2int(check_arr[0])
 
+
 def calc_oxygen_generator_rating(arr):
     return filter_bits_array(arr, most_common_value)
 
