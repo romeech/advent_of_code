@@ -5,6 +5,35 @@ COL_NUM = 5
 ROW_NUM = 5
 
 
+def find_unmarked_by_rows(board, marks, cur_row):
+    return [
+        [
+            board[row_idx][col_idx]
+            for col_idx in range(COL_NUM)
+            if not marks[row_idx][col_idx]
+        ]
+        for row_idx in range(ROW_NUM)
+        if row_idx != cur_row
+    ]
+
+
+def find_unmarked_by_cols(board, marks, cur_col):
+    return [
+        [
+            board[row_idx][col_idx]
+            for row_idx in range(ROW_NUM)
+            if not marks[row_idx][col_idx]
+        ]
+        for col_idx in range(COL_NUM)
+        if col_idx != cur_col
+    ]
+
+
+def flat_sum(unmarked):
+    return sum(chain.from_iterable(unmarked))
+
+
+
 def bingo(seq, boards):
     marks = [
         [[0 for i in range(COL_NUM)] for i in range(ROW_NUM)]
@@ -18,36 +47,58 @@ def bingo(seq, boards):
                     if slot == num:
                         marks[i][j][k] = 1
 
-                        # bing checks
+                        # bingo checks
                         # row check
                         if sum(marks[i][j]) == COL_NUM:
-                            unmarked = [
-                                [
-                                    boards[i][row_idx][n]
-                                    for n in range(COL_NUM)
-                                    if not marks[i][row_idx][n]
-                                ]
-                                for row_idx in range(ROW_NUM)
-                                if row_idx != j
-                            ]
-                            return sum(chain.from_iterable(unmarked)), num
+                            unmarked = find_unmarked_by_rows(boards[i], marks[i], j)
+                            return flat_sum(unmarked), num
 
                         # column check
                         if sum(marks[i][n][k] for n in range(ROW_NUM)) == ROW_NUM:
-                            unmarked = [
-                                [
-                                    boards[i][row_idx][col_idx]
-                                    for row_idx in range(ROW_NUM)
-                                    if not marks[i][row_idx][col_idx]
-                                ]
-                                for col_idx in range(COL_NUM)
-                                if col_idx != k
-                            ]
-                            return sum(chain.from_iterable(unmarked)), num
+                            unmarked = find_unmarked_by_cols(boards[i], marks[i], k)
+                            return flat_sum(unmarked), num
+
+
+def find_last_bingo(seq, boards):
+    marks = [
+        [[0 for i in range(COL_NUM)] for i in range(ROW_NUM)]
+        for i in range(len(boards))
+    ]
+
+    won_boards = set()
+
+    for num in num_sequence:
+        for i, board in enumerate(boards):
+            for j, row in enumerate(board):
+                for k, slot in enumerate(row):
+                    if slot == num:
+                        marks[i][j][k] = 1
+
+                        # bingo checks
+                        # row check
+                        if sum(marks[i][j]) == COL_NUM:
+                            won_boards.add(i)
+
+                            if len(won_boards) == len(boards):
+                                unmarked = find_unmarked_by_rows(boards[i], marks[i], j)
+                                return flat_sum(unmarked), num
+
+                        # column check
+                        if sum(marks[i][n][k] for n in range(ROW_NUM)) == ROW_NUM:
+                            won_boards.add(i)
+
+                            if len(won_boards) == len(boards):
+                                unmarked = find_unmarked_by_cols(boards[i], marks[i], k)
+                                return flat_sum(unmarked), num
 
 
 def calc_final_score(seq, boards):
     unmarked_sum, last_num = bingo(seq, boards)
+    return unmarked_sum * last_num
+
+
+def calc_last_board(seq, boards):
+    unmarked_sum, last_num = find_last_bingo(seq, boards)
     return unmarked_sum * last_num
 
 
