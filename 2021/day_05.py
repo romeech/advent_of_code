@@ -9,8 +9,8 @@ def round_by_dec(num):
     return mult
 
 
-def count_overlaps(lines_input):
-    lines = [
+def str2points(lines_strings):
+    return [
         [
             (
                 int(p.split(',')[0]),  # x
@@ -18,17 +18,31 @@ def count_overlaps(lines_input):
             )
             for p in line.split('->')  # split to 2 points
         ]
-        for line in lines_input
+        for line in lines_strings
     ]
 
+
+def count_boundaries(lines):
     all_x, all_y = zip(*chain.from_iterable(lines))
     len_x = round_by_dec(max(all_x))
     len_y = round_by_dec(max(all_y))
 
+    return len_x, len_y
+
+
+def build_empty_pmap(len_x, len_y):
     pmap = [None] * len_y
     line = [0] * len_x
     for i in range(len_y):
         pmap[i] = deepcopy(line)
+
+    return pmap
+
+
+def count_overlaps(lines_input):
+    lines = str2points(lines_input)
+    len_x, len_y = count_boundaries(lines)
+    pmap = build_empty_pmap(len_x, len_y)
 
     for line in lines:
         start, end = line
@@ -46,6 +60,38 @@ def count_overlaps(lines_input):
             left, right = sorted((start_x, end_x))
             for i in range(left, right + 1):
                 pmap[start_y][i] += 1
+
+    return len(list(filter(lambda x: x > 1, chain.from_iterable(pmap))))
+
+
+def count_overlaps_w_diag(lines_input):
+    lines = str2points(lines_input)
+    len_x, len_y = count_boundaries(lines)
+    pmap = build_empty_pmap(len_x, len_y)
+
+    for line in lines:
+        start, end = line
+        start_x, start_y = start
+        end_x, end_y = end
+
+        if start_x == end_x:
+            # vertical line
+            left, right = sorted((start_y, end_y))
+            for i in range(left, right + 1):
+                pmap[i][start_x] += 1
+        elif start_y == end_y:
+            # horizontal line
+            left, right = sorted((start_x, end_x))
+            for i in range(left, right + 1):
+                pmap[start_y][i] += 1
+        else:
+            # diagonal (45 degree) line
+            mod_x = -1 if start_x > end_x else 1
+            mod_y = -1 if start_y > end_y else 1
+            count = abs(end_x - start_x)
+
+            for i in range(count):
+                pmap[start_y + mod_y * i][start_x + mod_x * i] += 1
 
     return len(list(filter(lambda x: x > 1, chain.from_iterable(pmap))))
 
