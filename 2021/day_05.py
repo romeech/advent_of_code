@@ -88,13 +88,26 @@ def count_overlaps_w_diag(lines_input):
             # diagonal (45 degree) line
             mod_x = -1 if start_x > end_x else 1
             mod_y = -1 if start_y > end_y else 1
-            count = abs(end_x - start_x)
+            count = abs(end_x - start_x) + 1
 
             for i in range(count):
                 pmap[start_y + mod_y * i][start_x + mod_x * i] += 1
 
     return len(list(filter(lambda x: x > 1, chain.from_iterable(pmap))))
 
+
+control = [
+    '0,9 -> 5,9',
+    '8,0 -> 0,8',
+    '9,4 -> 3,4',
+    '2,2 -> 2,1',
+    '7,0 -> 7,4',
+    '6,4 -> 2,0',
+    '0,9 -> 2,9',
+    '3,4 -> 1,4',
+    '0,0 -> 8,8',
+    '5,5 -> 8,2',
+]
 
 real_lines_input = [
     '424,924 -> 206,706',
