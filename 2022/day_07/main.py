@@ -135,4 +135,4 @@ if __name__ == '__main__':
         if ds - size_to_free >= 0:
             diffs[ds - size_to_free] = ds
     part2 = diffs[min(diffs.keys())]
-    print(f"size of the smallest directory: {part2}")
+    print(f"Size of the most satisfying directory: {part2}")
