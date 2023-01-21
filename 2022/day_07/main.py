@@ -94,21 +94,6 @@ def parse_console_log(console_log):
     return prev, sum(small_sizes)
 
 
-def calc_dir(directory, small_sizes):
-    THRESHOLD = 100000
-    for child in directory.children:
-        if isinstance(child, Directory):
-            size = calc_dir(child, small_sizes)
-        else:
-            size = child.size
-        directory.size += size
-
-    if directory.size <= THRESHOLD:
-        small_sizes[directory.name] = directory.size
-
-    return directory.size
-
-
 def gather_sizes(directory):
     sizes = []
     for child in directory.children:
