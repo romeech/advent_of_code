@@ -25,6 +25,41 @@ def read_input(file_name):
         return motions
 
 
+def apply_move(knots, move_head_fn):
+    head = knots[0]
+    knots[0] = move_head_fn(head)
+
+    for i in range(len(knots) - 1):
+        head = knots[i]
+        tail = knots[i + 1]
+        new_tail = adjust_tail(head, tail)
+        knots[i + 1] = new_tail
+
+    return knots[-1]
+
+
+def adjust_tail(head, tail):
+    new_tail = tail
+
+    if head.x - tail.x == 2:  # right
+        new_tail = Point(tail.x + 1, tail.y)
+        new_tail.y = adjust_coord(head.y, tail.y)
+
+    elif tail.x - head.x == 2:  # left
+        new_tail = Point(tail.x - 1, tail.y)
+        new_tail.y = adjust_coord(head.y, tail.y)
+
+    elif head.y - tail.y == 2:  # up
+        new_tail = Point(tail.x, tail.y + 1)
+        new_tail.x = adjust_coord(head.x, tail.x)
+
+    elif tail.y - head.y == 2:  # down
+        new_tail = Point(tail.x, tail.y - 1)
+        new_tail.x = adjust_coord(head.x, tail.x)
+
+    return new_tail
+
+
 def adjust_coord(head, tail):
     if head > tail:
         return tail + 1
@@ -34,133 +69,20 @@ def adjust_coord(head, tail):
         return tail
 
 
-def move_step_up(knots):
-    head = knots[0]
-    knots[0] = Point(head.x, head.y + 1)
-
-    for i in range(len(knots) - 1):
-        head = knots[i]
-        tail = knots[i + 1]
-
-        new_tail = Point(tail.x, tail.y)
-        if abs(head.y - new_tail.y) > 1:
-            new_tail.y += 1
-            new_tail.x = adjust_coord(head.x, new_tail.x)
-        knots[i + 1] = new_tail
-
-    return new_tail
-
-
-def move_step_down(knots):
-    head = knots[0]
-    knots[0] = Point(head.x, head.y - 1)
-
-    for i in range(len(knots) - 1):
-        head = knots[i]
-        tail = knots[i + 1]
-
-        new_tail = Point(tail.x, tail.y)
-        if abs(head.y - new_tail.y) > 1:
-            new_tail.y -= 1
-            new_tail.x = adjust_coord(head.x, new_tail.x)
-        knots[i + 1] = new_tail
-
-    return new_tail
-
-
-def move_step_right(knots):
-    head = knots[0]
-    knots[0] = Point(head.x + 1, head.y)
-
-    for i in range(len(knots) - 1):
-        head = knots[i]
-        tail = knots[i + 1]
-
-        new_tail = Point(tail.x, tail.y)
-        if abs(head.x - new_tail.x) > 1:
-            new_tail.x += 1
-            new_tail.y = adjust_coord(head.y, new_tail.y)
-        knots[i + 1] = new_tail
-
-    return new_tail
-
-
-def move_step_left(knots):
-    head = knots[0]
-    knots[0] = Point(head.x - 1, head.y)
-
-    for i in range(len(knots) - 1):
-        head = knots[i]
-        tail = knots[i + 1]
-
-        new_tail = Point(tail.x, tail.y)
-        if abs(head.x - new_tail.x) > 1:
-            new_tail.x -= 1
-            new_tail.y = adjust_coord(head.y, new_tail.y)
-        knots[i + 1] = new_tail
-
-    return new_tail
-
-
-def apply_move(knots, move_head_fn, adjust_tail_fn):
-    head = knots[0]
-    knots[0] = move_head_fn(head)
-
-    for i in range(len(knots) - 1):
-        head = knots[i]
-        tail = knots[i + 1]
-        new_tail = adjust_tail_fn(head, tail)
-        knots[i + 1] = new_tail
-
-    return knots[-1]
-
-
 def move_head_up(head):
-    return Point(head.x + 1, head.y)
-
-
-def adjust_tail_up(head, tail):
-    new_tail = Point(tail.x, tail.y)
-    if abs(head.x - new_tail.x) > 1:
-        new_tail.x -= 1
-        new_tail.y = adjust_coord(head.y, new_tail.y)
-    return new_tail
+    return Point(head.x, head.y + 1)
 
 
 def move_head_down(head):
     return Point(head.x, head.y - 1)
 
 
-def adjust_tail_down(head, tail):
-    new_tail = Point(tail.x, tail.y)
-    if abs(head.y - new_tail.y) > 1:
-        new_tail.y -= 1
-        new_tail.x = adjust_coord(head.x, new_tail.x)
-    return new_tail
-
-
 def move_head_right(head):
     return Point(head.x + 1, head.y)
 
 
-def adjust_tail_right(head, tail):
-    new_tail = Point(tail.x, tail.y)
-    if abs(head.x - new_tail.x) > 1:
-        new_tail.x += 1
-        new_tail.y = adjust_coord(head.y, new_tail.y)
-    return new_tail
-
-
 def move_head_left(head):
     return Point(head.x - 1, head.y)
-
-
-def adjust_tail_left(head, tail):
-    new_tail = Point(tail.x, tail.y)
-    if abs(head.x - new_tail.x) > 1:
-        new_tail.x -= 1
-        new_tail.y = adjust_coord(head.y, new_tail.y)
-    return new_tail
 
 
 def calc_tail_positions(motions, knots):
@@ -168,16 +90,15 @@ def calc_tail_positions(motions, knots):
     positions = {tail}
 
     moves = {
-        'U': (move_head_up, adjust_tail_up),
-        'D': (move_head_down, adjust_tail_down),
-        'R': (move_head_right, adjust_tail_right),
-        'L': (move_head_left, adjust_tail_left),
+        'U': move_head_up,
+        'D': move_head_down,
+        'R': move_head_right,
+        'L': move_head_left,
     }
 
     for direction, amount in motions:
         for i in range(1, amount + 1):
-            move_head_fn, adjust_tail_fn = moves[direction]
-            positions.add(apply_move(knots, move_head_fn, adjust_tail_fn))
+            positions.add(apply_move(knots, moves[direction]))
 
     return len(positions)
 
@@ -185,7 +106,6 @@ def calc_tail_positions(motions, knots):
 if __name__ == '__main__':
     motions = read_input('control.txt')
     knots = [Point(), Point()]
-    # Need to print traces, to find out why it's 17 now
     tail_positions = calc_tail_positions(motions, knots)
     assert tail_positions == 13, f"Expected: 13, got: {tail_positions}"
 
@@ -195,8 +115,16 @@ if __name__ == '__main__':
     print(f'Tail positions amount: {part1}')
     assert part1 == 5902
 
-    # TODO: Need to detect dynamically which adjust_tail_* fn should be applied
-    # because adjust_coord may change x or y in two directions.
-    knots = [Point(), Point(), Point(), Point(), Point(), Point(), Point(), Point(), Point()]
+    motions = read_input('control2.txt')
+    knots = [
+        Point(), Point(), Point(), Point(), Point(), Point(), Point(), Point(), Point(), Point(),
+    ]
+    tail_positions = calc_tail_positions(motions, knots)
+    assert tail_positions == 36, f"Expected: 36, got: {tail_positions}"
+
+    motions = read_input('input.txt')
+    knots = [
+        Point(), Point(), Point(), Point(), Point(), Point(), Point(), Point(), Point(), Point(),
+    ]
     part2 = calc_tail_positions(motions, knots)
     print(f'Tail positions amount: {part2}')
