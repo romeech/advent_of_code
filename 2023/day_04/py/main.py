@@ -39,6 +39,16 @@ def count_scratchcards(matches_map):
     return scards_count
 
 
+def count_scratchcards_win0err(matches_map):
+    cards_count = [1] * len(matches_map)
+
+    for idx, (_, match_count) in enumerate(matches_map.items()):
+        for i in range(match_count):
+            cards_count[idx + 1 + i] += cards_count[idx]
+
+    return sum(cards_count)
+
+
 if __name__ == '__main__':
     cards = read_input('data/control.txt')
     total_worth, matches_map = calculate_cards_worth(cards)
